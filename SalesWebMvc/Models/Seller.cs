@@ -11,7 +11,7 @@ namespace SalesWebMvc.Models
         public string Name { get; set; }
         public string Email { get; set; }
         public DateTime BirthDate { get; set; }
-        public double BaseSalary { get; private set; }
+        public double BaseSalary { get; set; }
         public ICollection<SalesRecord> Sales { get; set; } = new List<SalesRecord>();
         public Department Department { get; set; }
 
