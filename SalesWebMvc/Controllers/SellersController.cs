@@ -20,11 +20,30 @@ namespace SalesWebMvc.Controllers
             _departmentService = departmentService;
         }
 
+        // GET: Sellers
         public IActionResult Index()
         {
             var list = _sellerService.FindAll();
             return View(list);
         }
+
+        // GET: Departments/Details
+        public IActionResult Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var seller = _sellerService.FindById(id.Value);
+            if (seller == null)
+            {
+                return NotFound();
+            }
+            return View(seller);
+        }
+
+
+
         // GET: Sellers/Create
         public IActionResult Create()
         {
@@ -32,7 +51,8 @@ namespace SalesWebMvc.Controllers
             var viewModel = new SellerFormViewModel { Departments = departments };
             return View(viewModel);
         }
-
+        
+        // POST: Sellers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Seller seller)
@@ -58,6 +78,7 @@ namespace SalesWebMvc.Controllers
             }
             return View(removedSeller);
         }
+        // POST: Sellers/Delete
         [HttpPost, ActionName ("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
