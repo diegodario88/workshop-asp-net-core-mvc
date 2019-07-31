@@ -7,6 +7,8 @@ using SalesWebMvc.Models;
 using SalesWebMvc.Services;
 using SalesWebMvc.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using SalesWebMvc.Services.Exceptions;
 
 namespace SalesWebMvc.Controllers
 {
@@ -33,12 +35,12 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not provided" });
             }
             var seller = _sellerService.FindById(id.Value);
             if (seller == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
             return View(seller);
         }
@@ -69,7 +71,7 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not provided" });
             }
             var editedSeller = _sellerService.FindById(id.Value);
             var departments = _departmentService.FindAll();
@@ -77,7 +79,7 @@ namespace SalesWebMvc.Controllers
 
             if (editedSeller == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
             return View(viewModel);
         }
@@ -89,9 +91,9 @@ namespace SalesWebMvc.Controllers
         {
             if (id != seller.Id)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not provided" });
             }
-            
+
             var departments = _departmentService.FindAll();
             var viewModel = new SellerFormViewModel { Departments = departments, Seller = seller };
 
@@ -107,7 +109,7 @@ namespace SalesWebMvc.Controllers
                 {
                     if (!_sellerService.SellerExists(seller.Id))
                     {
-                        return NotFound(e.Message);
+                        return RedirectToAction(nameof(Error), new { message = e.Message });
                     }
 
                     else
@@ -116,7 +118,7 @@ namespace SalesWebMvc.Controllers
                     }
 
                 }
-                
+
             }
 
             return View(viewModel);
@@ -127,12 +129,12 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not provided" });
             }
             var removedSeller = _sellerService.FindById(id.Value);
             if (removedSeller == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
             return View(removedSeller);
         }
@@ -142,11 +144,20 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            _sellerService.Remove(id);
-
             return RedirectToAction(nameof(Index));
         }
 
+        //Error
+        public IActionResult Error(string message)
+        {
+            var viewModel = new ErrorViewModel
+            {
+                Message = message,
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            };
+
+            return View(viewModel);
+        }
 
     }
 }
