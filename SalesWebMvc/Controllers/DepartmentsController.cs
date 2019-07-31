@@ -110,6 +110,7 @@ namespace SalesWebMvc.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(Index));
             }
             return View(department);

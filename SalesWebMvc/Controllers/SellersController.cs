@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using SalesWebMvc.Models;
 using SalesWebMvc.Services;
 using SalesWebMvc.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace SalesWebMvc.Controllers
 {
@@ -42,8 +43,6 @@ namespace SalesWebMvc.Controllers
             return View(seller);
         }
 
-
-
         // GET: Sellers/Create
         public IActionResult Create()
         {
@@ -51,7 +50,7 @@ namespace SalesWebMvc.Controllers
             var viewModel = new SellerFormViewModel { Departments = departments };
             return View(viewModel);
         }
-        
+
         // POST: Sellers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -63,6 +62,65 @@ namespace SalesWebMvc.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(seller);
+        }
+
+        // GET: Sellers/Edit
+        public IActionResult Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var editedSeller = _sellerService.FindById(id.Value);
+            var departments = _departmentService.FindAll();
+            var viewModel = new SellerFormViewModel { Departments = departments, Seller = editedSeller };
+
+            if (editedSeller == null)
+            {
+                return NotFound();
+            }
+            return View(viewModel);
+        }
+
+        //POST: Sellers/Edit
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, Seller seller)
+        {
+            if (id != seller.Id)
+            {
+                return NotFound();
+            }
+            
+            var departments = _departmentService.FindAll();
+            var viewModel = new SellerFormViewModel { Departments = departments, Seller = seller };
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _sellerService.Update(seller);
+                    return RedirectToAction(nameof(Index));
+                }
+
+                catch (ApplicationException e)
+                {
+                    if (!_sellerService.SellerExists(seller.Id))
+                    {
+                        return NotFound(e.Message);
+                    }
+
+                    else
+                    {
+                        throw;
+                    }
+
+                }
+                
+            }
+
+            return View(viewModel);
+
         }
         // GET: Sellers/Delete
         public IActionResult Delete(int? id)
@@ -78,14 +136,17 @@ namespace SalesWebMvc.Controllers
             }
             return View(removedSeller);
         }
+
         // POST: Sellers/Delete
-        [HttpPost, ActionName ("Delete")]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
             _sellerService.Remove(id);
-            
+
             return RedirectToAction(nameof(Index));
         }
+
+
     }
 }

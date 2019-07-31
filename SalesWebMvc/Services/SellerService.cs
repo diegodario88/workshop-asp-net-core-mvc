@@ -31,6 +31,14 @@ namespace SalesWebMvc.Services
             _context.SaveChanges();
         }
 
+        public bool SellerExists(int id) => _context.Seller.Any(s => s.Id == id);
+
+        public void Update(Seller seller)
+        {
+            _context.Seller.Update(seller);
+            _context.SaveChanges();
+        }
+
 
     }
 }
