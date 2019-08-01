@@ -58,12 +58,17 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Seller seller)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _sellerService.Insert(seller);
-                return RedirectToAction(nameof(Index));
+                var departments = _departmentService.FindAll();
+                var viewModel = new SellerFormViewModel { Departments = departments, Seller = seller };
+                return View(viewModel);
+
             }
-            return View(seller);
+
+            _sellerService.Insert(seller);
+            return RedirectToAction(nameof(Index));
+
         }
 
         // GET: Sellers/Edit
@@ -89,16 +94,20 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Seller seller)
         {
+
+            if (!ModelState.IsValid)
+            {
+                var departments = _departmentService.FindAll();
+                var viewModel = new SellerFormViewModel { Departments = departments, Seller = seller };
+                return View(viewModel);
+
+            }
+            
             if (id != seller.Id)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id not provided" });
             }
 
-            var departments = _departmentService.FindAll();
-            var viewModel = new SellerFormViewModel { Departments = departments, Seller = seller };
-
-            if (ModelState.IsValid)
-            {
                 try
                 {
                     _sellerService.Update(seller);
@@ -107,23 +116,11 @@ namespace SalesWebMvc.Controllers
 
                 catch (ApplicationException e)
                 {
-                    if (!_sellerService.SellerExists(seller.Id))
-                    {
                         return RedirectToAction(nameof(Error), new { message = e.Message });
-                    }
-
-                    else
-                    {
-                        throw;
-                    }
-
                 }
-
-            }
-
-            return View(viewModel);
-
+           
         }
+        
         // GET: Sellers/Delete
         public IActionResult Delete(int? id)
         {
