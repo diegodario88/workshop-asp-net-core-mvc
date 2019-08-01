@@ -17,16 +17,27 @@ namespace SalesWebMvc.Controllers
             _salesRecordsService = salesRecordsService;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var list = await _salesRecordsService.FindAllAsync();
-            return View(list);
+            return View();
         }
 
-        public async Task<IActionResult> SimpleSearch(Seller seller)
+        public async Task<IActionResult> SimpleSearch(DateTime? minDate, DateTime? maxDate)
         {
-           
-            return View();
+            if (!minDate.HasValue)
+            {
+                minDate = new DateTime(DateTime.Now.Year, 1, 1);
+            }
+            if (!maxDate.HasValue)
+            {
+                maxDate = DateTime.Now;
+            }
+
+            ViewData["minDate"] = minDate.Value.ToString("yyyy-MM-dd");
+            ViewData["maxDate"] = maxDate.Value.ToString("yyyy-MM-dd");
+
+            var result =  await _salesRecordsService.FindByDateAsync(minDate, maxDate);
+            return View(result);
         }
 
         public async Task<IActionResult> GroupingSearch(Seller seller)
