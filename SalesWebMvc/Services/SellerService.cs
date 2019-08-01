@@ -9,12 +9,16 @@ namespace SalesWebMvc.Services
 {
     public class SellerService
     {
+        //Propriedade
         private readonly SalesWebMvcContext _context;
 
+        //Construtor
         public SellerService(SalesWebMvcContext context) => _context = context;
 
+        //Buscar Todos
         public async Task<List<Seller>> FindAllAsync() => await _context.Seller.OrderBy(x => x.Name).ToListAsync();
 
+        //Inserir na BD
         public async Task InsertAsync(Seller seller)
         {
 
@@ -23,9 +27,11 @@ namespace SalesWebMvc.Services
 
         }
 
+        //Buscar por ID
         public async Task<Seller> FindByIdAsync(int id) => await _context.Seller.Include(obj => obj.Department)
             .FirstOrDefaultAsync(s => s.Id == id);
 
+        //Remover
         public async Task RemoveAsync(int id)
         {
             try
@@ -35,14 +41,16 @@ namespace SalesWebMvc.Services
                 await _context.SaveChangesAsync();
             }
 
-            catch (DbUpdateException e)
+            catch (DbUpdateException)
             {
                 throw new IntegrityException("Can't delete seller because he/she has sales");
             }
         }
 
+        //Verificar se Existe
         public async Task<bool> SellerExists(int id) => await _context.Seller.AnyAsync(s => s.Id == id);
 
+        //Atualizar 
         public async Task UpdateAsync(Seller seller)
         {
             bool hasAny = await SellerExists(seller.Id);

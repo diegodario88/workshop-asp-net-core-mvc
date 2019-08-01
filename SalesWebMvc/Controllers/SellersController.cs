@@ -14,9 +14,11 @@ namespace SalesWebMvc.Controllers
 {
     public class SellersController : Controller
     {
+        //Propriedades
         private readonly SellerService _sellerService;
         private readonly DepartmentService _departmentService;
 
+        //Construtor
         public SellersController(SellerService sellerService, DepartmentService departmentService)
         {
             _sellerService = sellerService;
